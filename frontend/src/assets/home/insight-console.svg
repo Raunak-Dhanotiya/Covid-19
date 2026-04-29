@@ -1,0 +1,28 @@
+<svg width="1600" height="760" viewBox="0 0 1600 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg-d" x1="94" y1="58" x2="1498" y2="748" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1C1530"/>
+      <stop offset="0.55" stop-color="#33265B"/>
+      <stop offset="1" stop-color="#22183D"/>
+    </linearGradient>
+    <linearGradient id="bars-d" x1="930" y1="210" x2="1412" y2="610" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C4B5FD"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="760" rx="48" fill="url(#bg-d)"/>
+  <circle cx="148" cy="124" r="70" fill="#C4B5FD" fill-opacity="0.15"/>
+  <circle cx="1468" cy="126" r="82" fill="#A78BFA" fill-opacity="0.14"/>
+  <circle cx="1338" cy="640" r="118" fill="#C4B5FD" fill-opacity="0.08"/>
+  <rect x="174" y="164" width="642" height="390" rx="30" fill="#2A1F4A" fill-opacity="0.9" stroke="#C4B5FD" stroke-opacity="0.34"/>
+  <rect x="926" y="214" width="96" height="302" rx="18" fill="url(#bars-d)" fill-opacity="0.66"/>
+  <rect x="1062" y="262" width="96" height="254" rx="18" fill="url(#bars-d)" fill-opacity="0.76"/>
+  <rect x="1198" y="304" width="96" height="212" rx="18" fill="url(#bars-d)" fill-opacity="0.86"/>
+  <rect x="1334" y="356" width="96" height="160" rx="18" fill="url(#bars-d)"/>
+  <path d="M250 448L420 412L590 424L760 358" stroke="#DDD6FE" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="420" cy="412" r="10" fill="#EDE9FE"/>
+  <circle cx="590" cy="424" r="10" fill="#EDE9FE"/>
+  <circle cx="760" cy="358" r="10" fill="#EDE9FE"/>
+  <text x="196" y="640" fill="#F5F3FF" font-family="Sora, Arial, sans-serif" font-size="44" font-weight="700">Insight Console</text>
+  <text x="196" y="686" fill="#E8E2FF" font-family="Sora, Arial, sans-serif" font-size="24" font-weight="500">Side-by-side metrics for fast decisions</text>
+</svg>

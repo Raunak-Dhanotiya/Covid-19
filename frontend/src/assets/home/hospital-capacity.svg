@@ -1,0 +1,26 @@
+<svg width="1600" height="760" viewBox="0 0 1600 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg-b" x1="88" y1="36" x2="1498" y2="746" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1A2B16"/>
+      <stop offset="0.54" stop-color="#23482A"/>
+      <stop offset="1" stop-color="#132F1D"/>
+    </linearGradient>
+    <linearGradient id="card-b" x1="886" y1="182" x2="1382" y2="614" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2C6740"/>
+      <stop offset="1" stop-color="#1A4430"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="760" rx="48" fill="url(#bg-b)"/>
+  <circle cx="150" cy="122" r="70" fill="#86EFAC" fill-opacity="0.16"/>
+  <circle cx="1470" cy="128" r="78" fill="#4ADE80" fill-opacity="0.14"/>
+  <circle cx="1370" cy="646" r="116" fill="#86EFAC" fill-opacity="0.09"/>
+  <rect x="176" y="164" width="642" height="390" rx="30" fill="#1D3D2A" fill-opacity="0.9" stroke="#86EFAC" stroke-opacity="0.34"/>
+  <rect x="906" y="186" width="498" height="430" rx="28" fill="url(#card-b)" stroke="#86EFAC" stroke-opacity="0.4"/>
+  <path d="M1205 280V355H1280V418H1205V494H1143V418H1068V355H1143V280H1205Z" fill="#A7F3C1"/>
+  <rect x="245" y="246" width="520" height="14" rx="7" fill="#C8FBD9"/>
+  <rect x="245" y="298" width="458" height="14" rx="7" fill="#A8F4C4"/>
+  <rect x="245" y="350" width="398" height="14" rx="7" fill="#83E8AB"/>
+  <rect x="245" y="402" width="336" height="14" rx="7" fill="#5FD88F"/>
+  <text x="198" y="640" fill="#EEFFF4" font-family="Sora, Arial, sans-serif" font-size="44" font-weight="700">Healthcare Capacity</text>
+  <text x="198" y="686" fill="#CFFFE0" font-family="Sora, Arial, sans-serif" font-size="24" font-weight="500">Monitor stress levels and response readiness</text>
+</svg>

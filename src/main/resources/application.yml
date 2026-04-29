@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: covid-19-tracker
+  datasource:
+    url: jdbc:postgresql://localhost:5432/covid19
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  sql:
+    init:
+      mode: never
+
+jwt:
+  secret: mysecretkeymysecretkeymysecretkey123456
+  expiration: 36000000

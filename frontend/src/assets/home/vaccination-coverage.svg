@@ -1,0 +1,27 @@
+<svg width="1600" height="760" viewBox="0 0 1600 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg-c" x1="96" y1="62" x2="1498" y2="746" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#31200B"/>
+      <stop offset="0.54" stop-color="#5E3A10"/>
+      <stop offset="1" stop-color="#3A260D"/>
+    </linearGradient>
+    <linearGradient id="needle-c" x1="930" y1="240" x2="1270" y2="474" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDE68A"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="760" rx="48" fill="url(#bg-c)"/>
+  <circle cx="148" cy="120" r="68" fill="#FDE68A" fill-opacity="0.15"/>
+  <circle cx="1470" cy="122" r="80" fill="#FBBF24" fill-opacity="0.14"/>
+  <circle cx="1338" cy="642" r="118" fill="#FDE68A" fill-opacity="0.09"/>
+  <rect x="174" y="164" width="646" height="392" rx="30" fill="#4A2F12" fill-opacity="0.9" stroke="#FCD34D" stroke-opacity="0.34"/>
+  <rect x="954" y="258" width="282" height="74" rx="34" fill="url(#needle-c)" transform="rotate(34 954 258)"/>
+  <rect x="872" y="325" width="130" height="112" rx="22" fill="#FCD34D" transform="rotate(34 872 325)"/>
+  <rect x="820" y="396" width="82" height="66" rx="16" fill="#FEF3C7" transform="rotate(34 820 396)"/>
+  <rect x="242" y="238" width="538" height="14" rx="7" fill="#FEF3C7"/>
+  <rect x="242" y="292" width="470" height="14" rx="7" fill="#FDE68A"/>
+  <rect x="242" y="346" width="408" height="14" rx="7" fill="#FCD34D"/>
+  <rect x="242" y="400" width="336" height="14" rx="7" fill="#FBBF24"/>
+  <text x="196" y="642" fill="#FFF7E3" font-family="Sora, Arial, sans-serif" font-size="44" font-weight="700">Vaccination Coverage</text>
+  <text x="196" y="688" fill="#FFEFC1" font-family="Sora, Arial, sans-serif" font-size="24" font-weight="500">Rollout progress, uptake, and priority tracking</text>
+</svg>
