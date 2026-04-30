@@ -14,8 +14,13 @@ public class FullGroupedServiceImpl implements FullGroupedService {
     private final FullGroupedRepository repository;
 
     @Override
-    public Page<FullGrouped> getAll(Pageable pageable) {
-        return repository.findAll(pageable);
+    public Page<FullGrouped> getAll(boolean dangerZone, Pageable pageable) {
+        return repository.findAllWithDangerZone(dangerZone, pageable);
+    }
+
+    @Override
+    public Page<FullGrouped> search(String keyword, boolean dangerZone, Pageable pageable) {
+        return repository.searchWithDangerZone(keyword, dangerZone, pageable);
     }
 
     @Override

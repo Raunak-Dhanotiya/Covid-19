@@ -18,18 +18,20 @@ public class WorldometerDataController {
     public Page<WorldometerData> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "totalCases") String sortBy
+            @RequestParam(defaultValue = "totalCases") String sortBy,
+            @RequestParam(defaultValue = "false") boolean dangerZone
     ) {
-        return service.getAll(PageRequest.of(page, size, Sort.by(sortBy)));
+        return service.getAll(dangerZone, PageRequest.of(page, size, Sort.by(sortBy)));
     }
 
     @GetMapping("/search")
     public Page<WorldometerData> search(
             @RequestParam String country,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "false") boolean dangerZone
     ) {
-        return service.searchByCountry(country, PageRequest.of(page, size));
+        return service.searchByCountry(country, dangerZone, PageRequest.of(page, size));
     }
 
     // ✅ NEW

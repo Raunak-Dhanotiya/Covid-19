@@ -18,9 +18,21 @@ public class DayWiseController {
     public Page<DayWise> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "date") String sortBy
+            @RequestParam(defaultValue = "date") String sortBy,
+            @RequestParam(defaultValue = "false") boolean dangerZone
     ) {
-        return service.getAll(PageRequest.of(page, size, Sort.by(sortBy)));
+        return service.getAll(dangerZone, PageRequest.of(page, size, Sort.by(sortBy)));
+    }
+
+    @GetMapping("/search")
+    public Page<DayWise> search(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "date") String sortBy,
+            @RequestParam(defaultValue = "false") boolean dangerZone
+    ) {
+        return service.search(keyword, dangerZone, PageRequest.of(page, size, Sort.by(sortBy)));
     }
 
     @PostMapping

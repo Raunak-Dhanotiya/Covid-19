@@ -14,8 +14,13 @@ public class DayWiseServiceImpl implements DayWiseService {
     private final DayWiseRepository repository;
 
     @Override
-    public Page<DayWise> getAll(Pageable pageable) {
-        return repository.findAll(pageable);
+    public Page<DayWise> getAll(boolean dangerZone, Pageable pageable) {
+        return repository.findAllWithDangerZone(dangerZone, pageable);
+    }
+
+    @Override
+    public Page<DayWise> search(String keyword, boolean dangerZone, Pageable pageable) {
+        return repository.searchWithDangerZone(keyword, dangerZone, pageable);
     }
 
     @Override

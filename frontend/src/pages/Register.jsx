@@ -1,23 +1,23 @@
-import React, { useContext, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { AuthContext } from '../context/AuthContext'
+import React, {useContext, useState} from 'react'
+import {Link} from 'react-router-dom'
+import {AuthContext} from '../context/AuthContext'
 
 export default function Register() {
-  const { register } = useContext(AuthContext)
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [role, setRole] = useState('USER')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const {register}=useContext(AuthContext)
+  const [username, setUsername]=useState('')
+  const [password, setPassword]=useState('')
+  const [role, setRole]=useState('USER')
+  const [error, setError]=useState('')
+  const [loading, setLoading]=useState(false)
 
-  const handle = async (event) => {
+  const handle=async (event) => {
     event.preventDefault()
     setLoading(true)
     setError('')
     try {
-      await register({ username, password, role })
-    } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Registration failed')
+      await register({username, password, role})
+    } catch(err) {
+      setError(err.response?.data?.message||err.message||'Registration failed')
     } finally {
       setLoading(false)
     }
@@ -25,39 +25,52 @@ export default function Register() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-7xl items-center px-4 py-12 sm:px-6 lg:px-8">
-      <section className="grid w-full gap-8 rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/25 backdrop-blur-xl lg:grid-cols-[1fr_0.95fr] lg:p-8">
-        <div className="rounded-[1.75rem] border border-white/10 bg-gradient-to-br from-cyan-500/20 via-slate-950 to-violet-500/25 p-8 order-2 lg:order-1">
-          <div className="inline-flex rounded-full border border-violet-400/20 bg-violet-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-violet-200/80">
-            Create account
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -right-1/4 -top-1/4 h-[800px] w-[800px] rounded-full  blur-[120px]" />
+        <div className="absolute -left-1/4 -bottom-1/4 h-[800px] w-[800px] rounded-full blur-[120px]" />
+      </div>
+
+      <section className="relative grid w-full max-w-5xl gap-8 rounded-[2.5rem] border border-white/[0.08] bg-white/[0.02] p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-3xl md:grid-cols-[1fr_1fr] md:p-12 overflow-hidden">
+
+        {/* LEFT PANEL: Context */}
+        <div className="flex flex-col justify-center p-4 order-2 md:order-1">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-400/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.3em] text-violet-300">
+            <span className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse"></span>
+            Create Account
           </div>
-          <h1 className="mt-6 text-4xl font-bold tracking-tight text-white">Register with your role.</h1>
-          <p className="mt-4 max-w-lg text-sm leading-7 text-slate-300">
-            Registration now matches the backend contract, including a role field that defaults to USER and supports ADMIN when allowed.
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            Join the <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">console.</span>
+          </h1>
+          <p className="mt-6 max-w-md text-sm leading-relaxed text-slate-400">
+            Registration supports strict role-based access. Choose USER for standard analytics or ADMIN for full CRUD control.
           </p>
-          <div className="mt-8 grid gap-3 text-sm text-slate-200">
-            <div className="rounded-2xl bg-white/5 px-4 py-3">Username + password are required</div>
-            <div className="rounded-2xl bg-white/5 px-4 py-3">Role is submitted with the backend register request</div>
-            <div className="rounded-2xl bg-white/5 px-4 py-3">Auto-login after successful registration</div>
-          </div>
         </div>
 
-        <form onSubmit={handle} className="rounded-[1.75rem] border border-white/10 bg-slate-950/60 p-6 sm:p-8 order-1 lg:order-2">
-          <h2 className="text-2xl font-semibold text-white">Create account</h2>
-          <p className="mt-2 text-sm text-slate-400">Choose USER for normal access or ADMIN if you need record management.</p>
-          <div className="mt-6 space-y-4">
-            <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400/60" />
-            <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" type="password" className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400/60" />
-            <select value={role} onChange={(e) => setRole(e.target.value)} className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-cyan-400/60">
-              <option value="USER">USER</option>
-              <option value="ADMIN">ADMIN</option>
-            </select>
+        {/* RIGHT PANEL: Form */}
+        <form onSubmit={handle} className="flex flex-col justify-center p-4 order-1 md:order-2">
+          <div className="space-y-6">
+            <label className="flex flex-col gap-2 relative group">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Username</span>
+              <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="new_user" className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm text-white outline-none transition-all hover:bg-white/10 focus:border-violet-400 focus:bg-white/10 focus:ring-4 focus:ring-violet-400/10 placeholder:text-slate-600" />
+            </label>
+            <label className="flex flex-col gap-2 relative group">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Password</span>
+              <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" type="password" className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm text-white outline-none transition-all hover:bg-white/10 focus:border-violet-400 focus:bg-white/10 focus:ring-4 focus:ring-violet-400/10 placeholder:text-slate-600" />
+            </label>
+            <label className="flex flex-col gap-2 relative group">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Role Assignment</span>
+              <select value={role} onChange={(e) => setRole(e.target.value)} className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm text-white outline-none transition-all hover:bg-white/10 focus:border-violet-400 focus:bg-white/10 focus:ring-4 focus:ring-violet-400/10 appearance-none">
+                <option value="USER" className="bg-slate-900">USER (Analytics only)</option>
+                <option value="ADMIN" className="bg-slate-900">ADMIN (Full access)</option>
+              </select>
+            </label>
           </div>
-          {error && <div className="mt-4 rounded-xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">{error}</div>}
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <button type="submit" disabled={loading} className="rounded-xl bg-gradient-to-r from-violet-500 to-cyan-400 px-5 py-3 font-semibold text-slate-950 shadow-lg shadow-cyan-400/20 transition hover:scale-[1.01] disabled:opacity-60">
-              {loading ? 'Creating...' : 'Register'}
+          {error&&<div className="mt-6 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-4 text-sm font-medium text-rose-200 flex items-center gap-3"><svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>{error}</div>}
+          <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <button type="submit" disabled={loading} className="w-full sm:w-auto rounded-2xl bg-violet-400 px-8 py-4 text-sm font-bold text-slate-950 shadow-[0_0_30px_rgba(167,139,250,0.3)] transition-all hover:bg-violet-300 hover:shadow-[0_0_40px_rgba(167,139,250,0.5)] hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0">
+              {loading? 'Creating...':'Register account'}
             </button>
-            <Link to="/login" className="text-sm text-cyan-200 hover:text-cyan-100">Already have an account?</Link>
+            <Link to="/login" className="text-sm font-semibold text-slate-400 transition hover:text-violet-300">Sign in instead &rarr;</Link>
           </div>
         </form>
       </section>

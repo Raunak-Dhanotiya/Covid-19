@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import DashboardLayout from '../layouts/DashboardLayout'
 import DatasetBrowser from '../components/DatasetBrowser'
-import StatCard from '../components/StatCard'
 import { countryWiseApi, worldometerApi, dayWiseApi } from '../services/dataService'
 
 export default function AdminDashboard() {
@@ -35,65 +34,46 @@ export default function AdminDashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <section className="app-surface-strong rounded-[28px] p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-100/80">Admin Dashboard</p>
-          <h1 className="mt-2 text-3xl font-semibold text-white sm:text-4xl">Data Governance Console</h1>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
-            Manage country-wise records directly from this panel while still using the same analysis-first dataset
-            experience. Admin tools are scoped to editable datasets only.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <span className="rounded-full border border-amber-200/45 bg-amber-300/15 px-3 py-1 text-xs font-semibold text-amber-100">
-              CRUD enabled
-            </span>
-            <span className="rounded-full border border-white/20 bg-white/8 px-3 py-1 text-xs font-semibold text-slate-200">
-              Country-wise edit scope
-            </span>
-          </div>
-        </section>
+      <div className="space-y-4">
+        <section className="app-surface-strong relative overflow-hidden rounded-[28px] border border-white/10 p-6 lg:flex lg:items-center lg:justify-between lg:gap-8">
+          <div className="pointer-events-none absolute -left-14 -top-14 h-48 w-48 rounded-full bg-cyan-300/15 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-16 -right-8 h-56 w-56 rounded-full bg-blue-400/16 blur-3xl" />
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <StatCard
-            title="Role"
-            value="ADMIN"
-            hint="Full management privileges"
-            tone="from-amber-300 to-orange-400"
-          />
-          <StatCard
-            title="Editable Records"
-            value={summary.managedRecords.toLocaleString()}
-            hint="Country-wise dataset entries"
-            tone="from-cyan-300 to-blue-400"
-          />
-          <StatCard
-            title="Global Dataset Rows"
-            value={summary.globalRecords.toLocaleString()}
-            hint="Worldometer records in catalog"
-            tone="from-emerald-300 to-teal-400"
-          />
-          <StatCard
-            title="Timeline Rows"
-            value={summary.timelineRecords.toLocaleString()}
-            hint="Day-wise historical rows"
-            tone="from-violet-300 to-indigo-400"
-          />
-        </section>
-
-        <section className="grid gap-4 xl:grid-cols-2">
-          <div className="app-surface rounded-[22px] p-5">
-            <h2 className="text-xl font-semibold text-white">Editing protocol</h2>
+          <div className="relative max-w-2xl">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="rounded-full border border-rose-200/45 bg-rose-500/20 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-rose-200">
+                Admin Console
+              </span>
+              <span className="rounded-full border border-cyan-200/45 bg-cyan-300/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
+                Data Governance
+              </span>
+            </div>
+            <h1 className="mt-4 text-3xl font-semibold text-white sm:text-4xl">System Control Center</h1>
             <p className="mt-3 text-sm leading-6 text-slate-300">
-              Validate each edit against trusted sources before saving. Delete actions are irreversible and should be
-              used only for data quality corrections.
+              Manage core datasets, monitor data health, and configure live system records. Admin tools are scoped to editable datasets only.
             </p>
           </div>
-          <div className="app-surface rounded-[22px] p-5">
-            <h2 className="text-xl font-semibold text-white">Audit awareness</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-300">
-              Because upstream reporting can be revised, preserve consistency in naming and numeric precision to avoid
-              accidental analytical drift.
-            </p>
+
+          <div className="relative mt-6 grid gap-3 grid-cols-2 lg:mt-0 lg:w-[480px] lg:shrink-0">
+             <div className="rounded-2xl border border-white/12 bg-slate-950/55 p-4 flex flex-col justify-center">
+               <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">Editable Records</p>
+               <p className="mt-1 text-2xl font-semibold text-cyan-300">{summary.managedRecords.toLocaleString()}</p>
+             </div>
+             <div className="rounded-2xl border border-white/12 bg-slate-950/55 p-4 flex flex-col justify-center">
+               <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">Global Dataset</p>
+               <p className="mt-1 text-2xl font-semibold text-emerald-300">{summary.globalRecords.toLocaleString()}</p>
+             </div>
+             <div className="rounded-2xl border border-white/12 bg-slate-950/55 p-4 flex flex-col justify-center">
+               <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">Timeline Rows</p>
+               <p className="mt-1 text-2xl font-semibold text-violet-300">{summary.timelineRecords.toLocaleString()}</p>
+             </div>
+             <div className="rounded-2xl border border-white/12 bg-slate-950/55 p-4 flex flex-col justify-center">
+               <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">System Status</p>
+               <div className="flex items-center gap-2 mt-2">
+                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                 <span className="text-sm font-semibold text-white">Online</span>
+               </div>
+             </div>
           </div>
         </section>
 

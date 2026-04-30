@@ -18,19 +18,21 @@ public class CountryWiseLatestController {
     public Page<CountryWiseLatest> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "confirmed") String sortBy
+            @RequestParam(defaultValue = "confirmed") String sortBy,
+            @RequestParam(defaultValue = "false") boolean dangerZone
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        return service.getAll(pageable);
+        return service.getAll(dangerZone, pageable);
     }
 
     @GetMapping("/search")
     public Page<CountryWiseLatest> search(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "false") boolean dangerZone
     ) {
-        return service.search(keyword, PageRequest.of(page, size));
+        return service.search(keyword, dangerZone, PageRequest.of(page, size));
     }
 
     @PostMapping

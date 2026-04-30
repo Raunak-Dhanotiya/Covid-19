@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function SearchBar({ value, onChange, onSubmit, placeholder = 'Search' }) {
+export default function SearchBar({value, onChange, onSubmit, placeholder='Search'}) {
   return (
     <form
       onSubmit={(event) => {
@@ -20,7 +20,7 @@ export default function SearchBar({ value, onChange, onSubmit, placeholder = 'Se
       </label>
       <button
         type="submit"
-        className="h-12 rounded-xl border border-cyan-200/40 bg-cyan-300 px-5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200 sm:min-w-[122px]"
+        className="h-12 rounded-xl border border-cyan-200/40 bg-cyan-300 px-5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200 sm:min-w-[130px]"
       >
         Search
       </button>

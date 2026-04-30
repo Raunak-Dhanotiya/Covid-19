@@ -18,20 +18,22 @@ public class CovidController {
     public Page<Covid> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "confirmed") String sortBy
+            @RequestParam(defaultValue = "confirmed") String sortBy,
+            @RequestParam(defaultValue = "false") boolean dangerZone
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        return service.getAll(pageable);
+        return service.getAll(dangerZone, pageable);
     }
 
     @GetMapping("/search")
     public Page<Covid> search(
             @RequestParam String country,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "false") boolean dangerZone
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        return service.searchByCountry(country, pageable);
+        return service.searchByCountry(country, dangerZone, pageable);
     }
 
     @PostMapping

@@ -7,7 +7,7 @@
 :root {
   color-scheme: dark;
 
-  --app-bg: linear-gradient(120deg, #0f2027, #1c3b4a, #0a192f);
+  --app-bg: #0f2027;
 
   --surface-soft: rgba(255, 255, 255, 0.06);
   --surface-strong: rgba(255, 255, 255, 0.1);

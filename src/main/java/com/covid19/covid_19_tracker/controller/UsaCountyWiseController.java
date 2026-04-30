@@ -18,9 +18,21 @@ public class UsaCountyWiseController {
     public Page<UsaCountyWise> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "confirmed") String sortBy
+            @RequestParam(defaultValue = "confirmed") String sortBy,
+            @RequestParam(defaultValue = "false") boolean dangerZone
     ) {
-        return service.getAll(PageRequest.of(page, size, Sort.by(sortBy)));
+        return service.getAll(dangerZone, PageRequest.of(page, size, Sort.by(sortBy)));
+    }
+
+    @GetMapping("/search")
+    public Page<UsaCountyWise> search(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "confirmed") String sortBy,
+            @RequestParam(defaultValue = "false") boolean dangerZone
+    ) {
+        return service.search(keyword, dangerZone, PageRequest.of(page, size, Sort.by(sortBy)));
     }
 
 

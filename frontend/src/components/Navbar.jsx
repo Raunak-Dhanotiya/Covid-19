@@ -1,26 +1,25 @@
-import React, { useContext, useMemo, useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
-import { AuthContext } from '../context/AuthContext'
+import React, {useContext, useMemo, useState} from 'react'
+import {Link, NavLink} from 'react-router-dom'
+import {AuthContext} from '../context/AuthContext'
 
 export default function Navbar() {
-  const { user, logout } = useContext(AuthContext)
-  const [open, setOpen] = useState(false)
+  const {user, logout}=useContext(AuthContext)
+  const [open, setOpen]=useState(false)
 
-  const displayName = useMemo(
-    () => user?.user?.username || user?.user?.name || user?.role || 'Guest',
+  const displayName=useMemo(
+    () => user?.user?.username||user?.user?.name||user?.role||'Guest',
     [user]
   )
 
-  const navClass = ({ isActive }) =>
-    `rounded-full px-4 py-2 text-sm font-semibold transition ${
-      isActive
-        ? 'bg-cyan-300 text-slate-950 shadow-[0_8px_24px_rgba(103,232,249,0.35)]'
-        : 'text-slate-200 hover:bg-white/10 hover:text-white'
+  const navClass=({isActive}) =>
+    `rounded-full px-4 py-2 text-sm font-semibold transition ${isActive
+      ? 'bg-cyan-300 text-slate-950 shadow-[0_8px_24px_rgba(103,232,249,0.35)]'
+      :'text-slate-200 hover:bg-white/10 hover:text-white'
     }`
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/75 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+    <header className="sticky top-4 z-50 mx-auto mt-4 w-full max-w-[1600px] px-4 sm:px-6 lg:px-8">
+      <div className="rounded-[2rem] border border-white/10 bg-slate-900/40 backdrop-blur-md flex items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-3">
           <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-cyan-300 to-blue-400 text-base font-bold text-slate-950 shadow-[0_10px_26px_rgba(103,232,249,0.32)]">
             CV
@@ -35,25 +34,20 @@ export default function Navbar() {
           <NavLink to="/" className={navClass}>
             Home
           </NavLink>
-          <NavLink to="/user/dashboard" className={navClass}>
+          <NavLink to={user?.role==='ADMIN'? '/admin/dashboard':'/user/dashboard'} className={navClass}>
             Dashboard
           </NavLink>
-          {user?.role === 'ADMIN' && (
-            <NavLink to="/admin/dashboard" className={navClass}>
-              Admin
-            </NavLink>
-          )}
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          {!user ? (
+          {!user? (
             <Link
               to="/login"
               className="rounded-full border border-cyan-200/40 bg-cyan-300/90 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200"
             >
               Sign in
             </Link>
-          ) : (
+          ):(
             <>
               <div className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-slate-100">
                 {displayName}
@@ -78,21 +72,16 @@ export default function Navbar() {
         </button>
       </div>
 
-      {open && (
+      {open&&(
         <div className="border-t border-white/10 px-4 pb-4 pt-3 md:hidden">
           <div className="flex flex-col gap-2">
             <NavLink to="/" onClick={() => setOpen(false)} className={navClass}>
               Home
             </NavLink>
-            <NavLink to="/user/dashboard" onClick={() => setOpen(false)} className={navClass}>
+            <NavLink to={user?.role==='ADMIN'? '/admin/dashboard':'/user/dashboard'} onClick={() => setOpen(false)} className={navClass}>
               Dashboard
             </NavLink>
-            {user?.role === 'ADMIN' && (
-              <NavLink to="/admin/dashboard" onClick={() => setOpen(false)} className={navClass}>
-                Admin
-              </NavLink>
-            )}
-            {!user ? (
+            {!user? (
               <Link
                 to="/login"
                 onClick={() => setOpen(false)}
@@ -100,7 +89,7 @@ export default function Navbar() {
               >
                 Sign in
               </Link>
-            ) : (
+            ):(
               <button
                 type="button"
                 onClick={() => {

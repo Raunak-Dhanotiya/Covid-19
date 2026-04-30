@@ -5,7 +5,9 @@ import org.springframework.data.domain.*;
 
 public interface UsaCountyWiseService {
 
-    Page<UsaCountyWise> getAll(Pageable pageable);
+    Page<UsaCountyWise> getAll(boolean dangerZone, Pageable pageable);
+
+    Page<UsaCountyWise> search(String keyword, boolean dangerZone, Pageable pageable);
 
     UsaCountyWise getById(Long id);
 

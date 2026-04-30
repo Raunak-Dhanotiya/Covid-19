@@ -14,13 +14,13 @@ public class CovidServiceImpl implements CovidService {
     private final CovidRepository repository;
 
     @Override
-    public Page<Covid> getAll(Pageable pageable) {
-        return repository.findAll(pageable);
+    public Page<Covid> getAll(boolean dangerZone, Pageable pageable) {
+        return repository.findAllWithDangerZone(dangerZone, pageable);
     }
 
     @Override
-    public Page<Covid> searchByCountry(String country, Pageable pageable) {
-        return repository.findByCountryRegionContainingIgnoreCase(country, pageable);
+    public Page<Covid> searchByCountry(String country, boolean dangerZone, Pageable pageable) {
+        return repository.searchWithDangerZone(country, dangerZone, pageable);
     }
 
     @Override

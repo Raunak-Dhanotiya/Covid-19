@@ -14,13 +14,13 @@ public class WorldometerDataServiceImpl implements WorldometerDataService {
     private final WorldometerDataRepository repository;
 
     @Override
-    public Page<WorldometerData> getAll(Pageable pageable) {
-        return repository.findAll(pageable);
+    public Page<WorldometerData> getAll(boolean dangerZone, Pageable pageable) {
+        return repository.findAllWithDangerZone(dangerZone, pageable);
     }
 
     @Override
-    public Page<WorldometerData> searchByCountry(String country, Pageable pageable) {
-        return repository.findByCountryRegionContainingIgnoreCase(country, pageable);
+    public Page<WorldometerData> searchByCountry(String country, boolean dangerZone, Pageable pageable) {
+        return repository.searchWithDangerZone(country, dangerZone, pageable);
     }
 
     @Override

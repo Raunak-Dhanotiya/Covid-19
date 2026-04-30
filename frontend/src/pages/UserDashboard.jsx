@@ -49,9 +49,7 @@ export default function UserDashboard() {
             <span className="rounded-full border border-cyan-200/45 bg-cyan-300/15 px-3 py-1 text-xs font-semibold text-cyan-100">
               Read-only workspace
             </span>
-            <span className="rounded-full border border-white/20 bg-white/8 px-3 py-1 text-xs font-semibold text-slate-200">
-              Source: Spring Boot API
-            </span>
+
           </div>
         </section>
 

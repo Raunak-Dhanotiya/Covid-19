@@ -14,13 +14,13 @@ public class CountryWiseLatestServiceImpl implements CountryWiseLatestService {
     private final CountryWiseLatestRepository repository;
 
     @Override
-    public Page<CountryWiseLatest> getAll(Pageable pageable) {
-        return repository.findAll(pageable);
+    public Page<CountryWiseLatest> getAll(boolean dangerZone, Pageable pageable) {
+        return repository.findAllWithDangerZone(dangerZone, pageable);
     }
 
     @Override
-    public Page<CountryWiseLatest> search(String keyword, Pageable pageable) {
-        return repository.findByCountryRegionContainingIgnoreCase(keyword, pageable);
+    public Page<CountryWiseLatest> search(String keyword, boolean dangerZone, Pageable pageable) {
+        return repository.searchWithDangerZone(keyword, dangerZone, pageable);
     }
 
     @Override
