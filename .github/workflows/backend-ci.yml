@@ -171,8 +171,11 @@ jobs:
     name: 🐳 Docker Build & Push
     runs-on: ubuntu-latest
     needs: test
-    # Only build Docker image on push to main (not on PRs)
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Only build Docker image on push to main AND when Docker Hub secrets are configured
+    if: |
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      secrets.DOCKERHUB_USERNAME != ''
 
     permissions:
       contents: read
