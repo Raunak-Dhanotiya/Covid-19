@@ -1,8 +1,8 @@
 # =============================================================================
-# 🚀 Frontend CI/CD Pipeline — React (Vite) + Deploy
+# 🚀 Frontend CI Pipeline — React (Vite)
 # =============================================================================
 # Triggers on pushes and pull requests to the main branch.
-# Jobs: lint → build → deploy (deploy only runs on push to main)
+# Jobs: lint → build
 # =============================================================================
 
 name: Frontend CI/CD
@@ -11,22 +11,18 @@ on:
   push:
     branches: [main]
     paths:
-      - "frontend/**"          # Only run when frontend files change
+      - "frontend/**"
       - ".github/workflows/frontend-ci.yml"
   pull_request:
     branches: [main]
     paths:
       - "frontend/**"
-  workflow_dispatch:           # Allow manual trigger from GitHub UI
+  workflow_dispatch:
 
-# ---------------------------------------------------------------------------
-# Environment variables shared across all jobs
-# ---------------------------------------------------------------------------
 env:
-  NODE_VERSION: "20"           # LTS version, matches Dockerfile
-  WORKING_DIR: ./frontend      # Frontend subdirectory
+  NODE_VERSION: "20"
+  WORKING_DIR: ./frontend
 
-# Cancel in-progress runs for the same branch/PR to save resources
 concurrency:
   group: frontend-${{ github.ref }}
   cancel-in-progress: true
@@ -65,7 +61,7 @@ jobs:
   build:
     name: 🏗️ Build
     runs-on: ubuntu-latest
-    needs: lint                  # Only build if lint passes
+    needs: lint
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIR }}
@@ -87,7 +83,6 @@ jobs:
       - name: 🏗️ Build production bundle
         run: npm run build
         env:
-          # Pass the API base URL for production build
           VITE_API_BASE_URL: /api
 
       - name: 📊 Report build size
@@ -100,92 +95,3 @@ jobs:
             size=$(du -h "$file" | cut -f1)
             echo "| \`$(basename $file)\` | $size |" >> $GITHUB_STEP_SUMMARY
           done
-
-      # Upload build artifacts for the deploy job
-      - name: 📤 Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build
-          path: frontend/dist/
-          retention-days: 7
-
-  # ===========================================================================
-  # Job 3: Deploy — Push to Vercel / Netlify / VPS
-  # ===========================================================================
-  deploy:
-    name: 🚀 Deploy
-    runs-on: ubuntu-latest
-    needs: build
-    # Only deploy on push to main AND when VPS secrets are configured
-    if: |
-      github.event_name == 'push' &&
-      github.ref == 'refs/heads/main' &&
-      secrets.VPS_HOST != ''
-
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 📥 Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-build
-          path: frontend/dist/
-
-      # -----------------------------------------------------------------
-      # Option A: Deploy to Vercel
-      # Uncomment this section and set VERCEL_TOKEN, VERCEL_ORG_ID,
-      # and VERCEL_PROJECT_ID in GitHub Secrets
-      # -----------------------------------------------------------------
-      # - name: 🚀 Deploy to Vercel
-      #   uses: amondnet/vercel-action@v25
-      #   with:
-      #     vercel-token: ${{ secrets.VERCEL_TOKEN }}
-      #     vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-      #     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-      #     vercel-args: "--prod"
-      #     working-directory: frontend/
-
-      # -----------------------------------------------------------------
-      # Option B: Deploy to Netlify
-      # Uncomment this section and set NETLIFY_AUTH_TOKEN and
-      # NETLIFY_SITE_ID in GitHub Secrets
-      # -----------------------------------------------------------------
-      # - name: 🚀 Deploy to Netlify
-      #   uses: nwtgck/actions-netlify@v3
-      #   with:
-      #     publish-dir: frontend/dist
-      #     production-deploy: true
-      #   env:
-      #     NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-      #     NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-
-      # -----------------------------------------------------------------
-      # Option C: Deploy to VPS via Docker (default — active)
-      # Uses the same Docker image built for the frontend
-      # -----------------------------------------------------------------
-      - name: 🚀 Deploy frontend to VPS
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_SSH_PORT || 22 }}
-          script: |
-            cd /opt/covid-19-tracker
-            echo "📥 Pulling latest code..."
-            git pull origin main
-            echo "🏗️ Rebuilding frontend container..."
-            docker compose build frontend
-            docker compose up -d frontend
-            echo "🧹 Cleaning up unused images..."
-            docker image prune -f
-            echo "✅ Frontend deployed successfully!"
-
-      - name: 📝 Deployment summary
-        run: |
-          echo "### 🚀 Frontend Deployment" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Deployed at:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
