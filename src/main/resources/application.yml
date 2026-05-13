@@ -2,13 +2,13 @@ spring:
   application:
     name: covid-19-tracker
   datasource:
-    url: jdbc:postgresql://localhost:5432/covid19
-    username: postgres
-    password: root
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/covid19}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:none}
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -18,5 +18,5 @@ spring:
       mode: never
 
 jwt:
-  secret: mysecretkeymysecretkeymysecretkey123456
-  expiration: 36000000
+  secret: ${JWT_SECRET:mysecretkeymysecretkeymysecretkey123456}
+  expiration: ${JWT_EXPIRATION:36000000}

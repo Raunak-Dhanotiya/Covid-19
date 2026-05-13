@@ -1,0 +1,235 @@
+# =============================================================================
+# 🚀 Backend CI/CD Pipeline — Spring Boot + Docker
+# =============================================================================
+# Triggers on pushes and pull requests to the main branch.
+# Jobs: build → test → docker (docker only runs on push to main)
+# =============================================================================
+
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"               # Only run when backend source changes
+      - "pom.xml"
+      - "Dockerfile"
+      - ".github/workflows/backend-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "pom.xml"
+  workflow_dispatch:           # Allow manual trigger from GitHub UI
+
+# ---------------------------------------------------------------------------
+# Environment variables shared across all jobs
+# ---------------------------------------------------------------------------
+env:
+  JAVA_VERSION: "21"
+  JAVA_DISTRIBUTION: "temurin"
+  DOCKER_IMAGE: covid-19-tracker-backend
+  REGISTRY: docker.io         # Change to ghcr.io for GitHub Container Registry
+
+# Cancel in-progress runs for the same branch/PR
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ===========================================================================
+  # Job 1: Build — Compile the Spring Boot application
+  # ===========================================================================
+  build:
+    name: 🏗️ Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      # Cache Maven dependencies for faster builds
+      - name: 📦 Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-
+
+      - name: 🔧 Make Maven wrapper executable
+        run: chmod +x ./mvnw
+
+      - name: 🏗️ Build with Maven (skip tests)
+        run: ./mvnw clean package -DskipTests -B
+        # -B = batch mode (non-interactive, cleaner logs)
+
+      - name: 📊 Build summary
+        run: |
+          JAR_FILE=$(find target -name "*.jar" -not -name "*-sources.jar" | head -1)
+          JAR_SIZE=$(du -h "$JAR_FILE" | cut -f1)
+          echo "### 🏗️ Backend Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **JAR File** | \`$(basename $JAR_FILE)\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Size** | $JAR_SIZE |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Java** | ${{ env.JAVA_VERSION }} |" >> $GITHUB_STEP_SUMMARY
+
+      # Upload JAR for downstream jobs
+      - name: 📤 Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: target/*.jar
+          retention-days: 7
+
+  # ===========================================================================
+  # Job 2: Test — Run unit and integration tests
+  # ===========================================================================
+  test:
+    name: 🧪 Test
+    runs-on: ubuntu-latest
+    needs: build              # Only test if build succeeds
+
+    # Spin up PostgreSQL as a service container for integration tests
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: covid19_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: testpassword
+        ports:
+          - 5432:5432
+        # Health check to ensure DB is ready before tests run
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - name: 📦 Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-
+
+      - name: 🔧 Make Maven wrapper executable
+        run: chmod +x ./mvnw
+
+      - name: 🧪 Run tests
+        run: ./mvnw test -B
+        env:
+          # Override database config for CI test environment
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/covid19_test
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: testpassword
+          SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+          JWT_SECRET: ci-test-secret-key-that-is-at-least-256-bits-long-for-hmac
+
+      - name: 📊 Test results summary
+        if: always()
+        run: |
+          echo "### 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -d "target/surefire-reports" ]; then
+            TOTAL=$(find target/surefire-reports -name "*.txt" | wc -l)
+            FAILED=$(grep -l "FAILURE\|ERROR" target/surefire-reports/*.txt 2>/dev/null | wc -l)
+            PASSED=$((TOTAL - FAILED))
+            echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| ✅ Passed | $PASSED |" >> $GITHUB_STEP_SUMMARY
+            echo "| ❌ Failed | $FAILED |" >> $GITHUB_STEP_SUMMARY
+            echo "| 📊 Total  | $TOTAL |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No test reports found." >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ===========================================================================
+  # Job 3: Docker — Build and push Docker image
+  # ===========================================================================
+  docker:
+    name: 🐳 Docker Build & Push
+    runs-on: ubuntu-latest
+    needs: test
+    # Only build Docker image on push to main (not on PRs)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    permissions:
+      contents: read
+      packages: write          # Required for GHCR push
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # ---------------------------------------------------------------
+      # Login to Docker Hub
+      # To use GitHub Container Registry (GHCR) instead, replace with:
+      #   registry: ghcr.io
+      #   username: ${{ github.actor }}
+      #   password: ${{ secrets.GITHUB_TOKEN }}
+      # ---------------------------------------------------------------
+      - name: 🔐 Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Generate image tags:
+      # - latest (always on main)
+      # - sha-<short-commit-hash>
+      # - semver tag if a git tag is pushed (e.g., v1.0.0)
+      - name: 🏷️ Generate Docker metadata (tags & labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-,format=short
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: 🏗️ Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Layer caching for faster rebuilds
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 📝 Docker image summary
+        run: |
+          echo "### 🐳 Docker Image Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta.outputs.tags }}" | while read tag; do
+            echo "- \`$tag\`" >> $GITHUB_STEP_SUMMARY
+          done
