@@ -10,7 +10,7 @@
 services:
   # ─── PostgreSQL Database ──────────────────────────────────────────────────
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18.3-alpine
     container_name: covid19-postgres
     restart: unless-stopped
     environment:
@@ -20,11 +20,11 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-covid19}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-covid19}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -44,7 +44,7 @@ services:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/covid19}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-root}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       JWT_SECRET: ${JWT_SECRET:-mysecretkeymysecretkeymysecretkey123456}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-36000000}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-default}
@@ -54,7 +54,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -75,7 +75,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:80"]
+      test: [ "CMD", "wget", "-qO-", "http://localhost:80" ]
       interval: 30s
       timeout: 5s
       retries: 3

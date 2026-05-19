@@ -23,7 +23,7 @@ on:
   workflow_dispatch:
 
 env:
-  JAVA_VERSION: "21"
+  JAVA_VERSION: "17"
   JAVA_DISTRIBUTION: "temurin"
 
 concurrency:
@@ -84,7 +84,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:18.3-alpine
         env:
           POSTGRES_DB: covid19_test
           POSTGRES_USER: postgres

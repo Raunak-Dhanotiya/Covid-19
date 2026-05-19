@@ -1,3 +1,4 @@
+
 # =============================================================================
 # 🐳 Backend Dockerfile — Spring Boot (Multi-Stage Build)
 # =============================================================================
@@ -6,7 +7,7 @@
 # =============================================================================
 
 # ---- Stage 1: Build ----
-FROM eclipse-temurin:21-jdk-alpine AS build
+FROM eclipse-temurin:17-jdk-jammy AS build
 
 WORKDIR /app
 
@@ -26,10 +27,10 @@ COPY src ./src
 RUN ./mvnw clean package -DskipTests -B
 
 # ---- Stage 2: Runtime ----
-FROM eclipse-temurin:21-jre-alpine AS runtime
+FROM eclipse-temurin:17-jre-jammy AS runtime
 
 # Security: run as non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 WORKDIR /app
 
@@ -53,7 +54,7 @@ ENV JAVA_OPTS="-XX:+UseContainerSupport \
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD wget -qO- http://localhost:8080/actuator/health || exit 1
+  CMD curl -f http://localhost:8080/actuator/health || exit 1
 
 # Start the application
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
