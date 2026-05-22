@@ -48,12 +48,29 @@ jobs:
             exit 1
           fi
 
-      - name: Verify S3 bucket
+      - name: Debug AWS Configuration
+        run: |
+          echo "AWS Region: ${{ secrets.AWS_REGION }}"
+          echo "S3 Bucket: ${{ secrets.S3_BUCKET_NAME }}"
+          aws sts get-caller-identity
+
+      - name: List all S3 buckets
+        run: |
+          echo "Available S3 buckets:"
+          aws s3 ls
+
+      - name: Verify S3 bucket exists
         run: |
           bucket="${{ secrets.S3_BUCKET_NAME }}"
           bucket=${bucket#s3://}
           bucket=${bucket%/}
-          aws s3api head-bucket --bucket "$bucket"
+          echo "Checking bucket: $bucket"
+          if aws s3api head-bucket --bucket "$bucket" 2>/dev/null; then
+            echo "✓ Bucket $bucket exists and is accessible"
+          else
+            echo "✗ Bucket $bucket does NOT exist or is not accessible"
+            exit 1
+          fi
 
       - name: Upload Spring Boot jar to S3
         run: |
@@ -61,5 +78,7 @@ jobs:
           bucket=${bucket#s3://}
           bucket=${bucket%/}
           jar=$(ls target/*.jar | head -n 1)
-          echo "Uploading $jar to s3://$bucket/$(basename "$jar")"
-          aws s3 cp "$jar" "s3://$bucket/$(basename "$jar")"
+          echo "✓ Found JAR: $jar"
+          echo "Uploading to: s3://$bucket/$(basename "$jar")"
+          aws s3 cp "$jar" "s3://$bucket/$(basename "$jar")" --region "${{ secrets.AWS_REGION }}"
+          echo "✓ Upload successful"
