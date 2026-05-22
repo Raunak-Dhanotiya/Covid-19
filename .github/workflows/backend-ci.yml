@@ -31,56 +31,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ===========================================================================
-  # Job 1: Build — Compile the Spring Boot application
-  # ===========================================================================
-  build:
-    name: 🏗️ Build
+  build-and-test:
+    name: 🏗️ Build & 🧪 Test
     runs-on: ubuntu-latest
-
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: ☕ Setup JDK ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-
-      - name: 📦 Cache Maven dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            maven-${{ runner.os }}-
-
-      - name: 🔧 Make Maven wrapper executable
-        run: chmod +x ./mvnw
-
-      - name: 🏗️ Build with Maven (skip tests)
-        run: ./mvnw clean package -DskipTests -B
-
-      - name: 📊 Build summary
-        run: |
-          JAR_FILE=$(find target -name "*.jar" -not -name "*-sources.jar" | head -1)
-          JAR_SIZE=$(du -h "$JAR_FILE" | cut -f1)
-          echo "### 🏗️ Backend Build Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **JAR File** | \`$(basename $JAR_FILE)\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Size** | $JAR_SIZE |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Java** | ${{ env.JAVA_VERSION }} |" >> $GITHUB_STEP_SUMMARY
-
-  # ===========================================================================
-  # Job 2: Test — Run unit and integration tests
-  # ===========================================================================
-  test:
-    name: 🧪 Test
-    runs-on: ubuntu-latest
-    needs: build
 
     services:
       postgres:
@@ -106,20 +59,13 @@ jobs:
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
-
-      - name: 📦 Cache Maven dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            maven-${{ runner.os }}-
+          cache: maven
 
       - name: 🔧 Make Maven wrapper executable
         run: chmod +x ./mvnw
 
-      - name: 🧪 Run tests
-        run: ./mvnw test -B
+      - name: 🏗️ Build and Test with Maven
+        run: ./mvnw clean package -B
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/covid19_test
           SPRING_DATASOURCE_USERNAME: postgres
@@ -127,20 +73,33 @@ jobs:
           SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
           JWT_SECRET: ci-test-secret-key-that-is-at-least-256-bits-long-for-hmac
 
-      - name: 📊 Test results summary
+      - name: 📊 Job Summary
         if: always()
         run: |
-          echo "### 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "### 🏗️ Build & 🧪 Test Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # JAR Information
+          JAR_FILE=$(find target -name "*.jar" -not -name "*-sources.jar" | head -1)
+          if [ -n "$JAR_FILE" ]; then
+            JAR_SIZE=$(du -h "$JAR_FILE" | cut -f1)
+            echo "#### 📦 Artifact" >> $GITHUB_STEP_SUMMARY
+            echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+            echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| **JAR** | \`$(basename $JAR_FILE)\` |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Size** | $JAR_SIZE |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Test Results
           if [ -d "target/surefire-reports" ]; then
             TOTAL=$(find target/surefire-reports -name "*.txt" | wc -l)
             FAILED=$(grep -l "FAILURE\|ERROR" target/surefire-reports/*.txt 2>/dev/null | wc -l)
             PASSED=$((TOTAL - FAILED))
+            echo "#### 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
             echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
             echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
             echo "| ✅ Passed | $PASSED |" >> $GITHUB_STEP_SUMMARY
             echo "| ❌ Failed | $FAILED |" >> $GITHUB_STEP_SUMMARY
             echo "| 📊 Total  | $TOTAL |" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "No test reports found." >> $GITHUB_STEP_SUMMARY
           fi
