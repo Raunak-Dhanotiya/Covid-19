@@ -5,6 +5,13 @@ on:
     branches:
       - main
 
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+
 jobs:
 
   deploy:
@@ -25,32 +32,15 @@ jobs:
       - name: Build Spring Boot
         run: mvn clean package -DskipTests
 
-      - name: Configure AWS
+      - name: Configure AWS with OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Install AWS CLI
-        run: |
-          python3 -m pip install --upgrade --user awscli
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Validate S3 bucket secret
-        run: |
-          if [ -z "${{ secrets.S3_BUCKET_NAME }}" ]; then
-            echo "ERROR: S3_BUCKET_NAME secret is not set. Please configure it in GitHub Secrets."
-            exit 1
-          fi
-          if [ -z "${{ secrets.AWS_REGION }}" ]; then
-            echo "ERROR: AWS_REGION secret is not set. Please configure it in GitHub Secrets."
-            exit 1
-          fi
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Debug AWS Configuration
         run: |
-          echo "AWS Region: ${{ secrets.AWS_REGION }}"
+          echo "AWS Region: ${{ env.AWS_REGION }}"
           echo "S3 Bucket: ${{ secrets.S3_BUCKET_NAME }}"
           aws sts get-caller-identity
 
@@ -80,5 +70,5 @@ jobs:
           jar=$(ls target/*.jar | head -n 1)
           echo "✓ Found JAR: $jar"
           echo "Uploading to: s3://$bucket/$(basename "$jar")"
-          aws s3 cp "$jar" "s3://$bucket/$(basename "$jar")" --region "${{ secrets.AWS_REGION }}"
+          aws s3 cp "$jar" "s3://$bucket/$(basename "$jar")" --region "${{ env.AWS_REGION }}"
           echo "✓ Upload successful"
