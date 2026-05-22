@@ -37,12 +37,29 @@ jobs:
           python3 -m pip install --upgrade --user awscli
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
+      - name: Validate S3 bucket secret
+        run: |
+          if [ -z "${{ secrets.S3_BUCKET_NAME }}" ]; then
+            echo "ERROR: S3_BUCKET_NAME secret is not set. Please configure it in GitHub Secrets."
+            exit 1
+          fi
+          if [ -z "${{ secrets.AWS_REGION }}" ]; then
+            echo "ERROR: AWS_REGION secret is not set. Please configure it in GitHub Secrets."
+            exit 1
+          fi
+
       - name: Verify S3 bucket
         run: |
-          aws s3api head-bucket --bucket "${{ secrets.S3_BUCKET_NAME }}"
+          bucket="${{ secrets.S3_BUCKET_NAME }}"
+          bucket=${bucket#s3://}
+          bucket=${bucket%/}
+          aws s3api head-bucket --bucket "$bucket"
 
       - name: Upload Spring Boot jar to S3
         run: |
+          bucket="${{ secrets.S3_BUCKET_NAME }}"
+          bucket=${bucket#s3://}
+          bucket=${bucket%/}
           jar=$(ls target/*.jar | head -n 1)
-          echo "Uploading $jar to s3://${{ secrets.S3_BUCKET_NAME }}/"
-          aws s3 cp "$jar" s3://${{ secrets.S3_BUCKET_NAME }}/
+          echo "Uploading $jar to s3://$bucket/$(basename "$jar")"
+          aws s3 cp "$jar" "s3://$bucket/$(basename "$jar")"
