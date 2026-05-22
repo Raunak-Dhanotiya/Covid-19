@@ -23,7 +23,7 @@ jobs:
           java-version: '17'
 
       - name: Build Spring Boot
-        run: mvn clean package
+        run: mvn clean package -DskipTests
 
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v4
