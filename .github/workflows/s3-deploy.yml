@@ -40,6 +40,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+          cache: maven
 
       - name: Validate required GitHub secrets
         run: |
@@ -54,100 +55,17 @@ jobs:
           done
           echo "✓ All required secrets are configured."
 
-      - name: Configure AWS credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Install AWS CLI
+      - name: Debug Secrets
         run: |
-          set -euo pipefail
-          python3 -m pip install --upgrade --user awscli
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          aws --version
+          echo "Bucket Name: ${{ secrets.S3_BUCKET_NAME }}"
+          echo "Region: ${{ secrets.AWS_REGION }}"
 
-      - name: Print AWS identity
-        run: |
-          set -euo pipefail
-          echo "AWS Region: $AWS_REGION"
-          echo "S3 Bucket: $S3_BUCKET_NAME"
-          aws sts get-caller-identity
-
-      - name: List all S3 buckets
-        run: |
-          set -euo pipefail
-          echo "Listing all accessible S3 buckets..."
-          aws s3 ls
-
-      - name: Build Spring Boot application
-        run: |
-          set -euo pipefail
-          echo "Building Spring Boot JAR from branch ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.branch || github.ref_name }}"
-          mvn clean package -DskipTests
-
-      - name: Verify generated artifact
-        run: |
-          set -euo pipefail
-          echo "Verifying target directory and generated JAR..."
-          ls -la target
-          jar=$(find target -maxdepth 1 -type f -name '*.jar' | head -n 1 || true)
-          if [ -z "$jar" ]; then
-            echo "ERROR: No JAR artifact found in target/."
-            exit 1
-          fi
-          echo "✓ Artifact found: $jar"
-          echo "Artifact size: $(stat -f '%z' "$jar") bytes"
-          echo "Artifact path: $jar"
-          echo "Listing artifact details:"
-          ls -lh "$jar"
-          echo "ARTIFACT_PATH=$jar" >> $GITHUB_ENV
-
-      - name: Verify S3 bucket exists before upload
-        run: |
-          set -euo pipefail
-          bucket="${S3_BUCKET_NAME#s3://}"
-          bucket="${bucket%/}"
-          echo "Checking S3 bucket existence for: $bucket"
-          if aws s3api head-bucket --bucket "$bucket" 2>/dev/null; then
-            echo "✓ Bucket $bucket exists and is accessible"
-          else
-            echo "✗ Bucket $bucket does NOT exist or is not accessible"
-            exit 1
-          fi
-          echo "Using bucket: $bucket"
-          echo "BUCKET_NAME=$bucket" >> $GITHUB_ENV
-
-      - name: Upload Spring Boot JAR to S3
-        run: |
-          set -euo pipefail
-          if [ -z "$ARTIFACT_PATH" ]; then
-            echo "ERROR: ARTIFACT_PATH is not set."
-            exit 1
-          fi
-          jar="$ARTIFACT_PATH"
-          bucket="$BUCKET_NAME"
-          key="$(basename "$jar")"
-          echo "Uploading artifact $jar to s3://$bucket/$key"
-          aws s3 cp "$jar" "s3://$bucket/$key" --region "$AWS_REGION"
-          echo "✓ Upload command completed"
-
-      - name: Verify upload on S3
-        run: |
-          set -euo pipefail
-          if [ -z "$ARTIFACT_PATH" ]; then
-            echo "ERROR: ARTIFACT_PATH is not set."
-            exit 1
-          fi
-          bucket="$BUCKET_NAME"
-          key="$(basename "$ARTIFACT_PATH")"
-          echo "Verifying uploaded object s3://$bucket/$key"
-          if aws s3api head-object --bucket "$bucket" --key "$key" >/dev/null 2>&1; then
-            echo "✓ Verified object exists in S3: s3://$bucket/$key"
-          else
-            echo "ERROR: Uploaded object s3://$bucket/$key could not be verified"
-            exit 1
-          fi
-          echo "Listing uploaded object metadata:"
-          aws s3api head-object --bucket "$bucket" --key "$key"
+      - name: Upload JAR To S3
+        run: aws s3 cp target/*.jar s3://${{ secrets.S3_BUCKET_NAME }}/
